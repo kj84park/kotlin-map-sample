@@ -1,0 +1,7 @@
+<resources>
+  <string name="app_name">Kotlin Maps</string>
+  <string name="title_activity_maps">Kotlin Map</string>
+  <string name="content_description_fabs_layout">style selection buttons</string>
+  <string name="content_description_fab">button</string>
+
+</resources>
