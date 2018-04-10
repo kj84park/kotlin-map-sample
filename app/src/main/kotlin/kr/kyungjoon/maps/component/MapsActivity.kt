@@ -3,7 +3,11 @@ package kr.kyungjoon.maps.component
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
+import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
+import android.location.LocationManager
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
@@ -35,6 +39,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.On
     }
 
     private lateinit var googleApiClient: GoogleApiClient
+    private lateinit var locationManager: LocationManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,7 +48,30 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.On
         setupToolbar()
 
         Log.d(TAG, "### setupMapWithPermissionCheck()")
-        setupMapWithPermissionCheck()
+        locationManager = this.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            setupMapWithPermissionCheck()
+        } else {
+            val alertDialogBuilder = AlertDialog.Builder(this)
+            alertDialogBuilder
+                    .setMessage("GPS is disabled in your device. Enable it?")
+                    .setCancelable(false)
+                    .setPositiveButton("Enable GPS",
+                            { _: DialogInterface, _: Int ->
+                                val callGPSSettingIntent = Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                                this.startActivity(callGPSSettingIntent)
+                            })
+                    .setNegativeButton("Cancel",
+                            { dialogInterface: DialogInterface, _: Int ->
+                                dialogInterface.cancel()
+                            })
+            val alert = alertDialogBuilder.create()
+            alert.show()
+        }
     }
 
     @OnPermissionDenied(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -60,13 +88,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.On
     override fun onMapReady(googleMap: GoogleMap) {
 
         googleMap.apply {
-            isMyLocationEnabled = !isMyLocationEnabled
-
             fab_style_one.setOnClickListener {
-                startActivityForResult(PlacePicker.IntentBuilder().build(this@MapsActivity), PLACE_PICKER_REQUEST)
+                isMyLocationEnabled = !isMyLocationEnabled
             }
 
             fab_style_two.setOnClickListener {
+                startActivityForResult(PlacePicker.IntentBuilder().build(this@MapsActivity), PLACE_PICKER_REQUEST)
             }
 
             fab_style_three.setOnClickListener {
