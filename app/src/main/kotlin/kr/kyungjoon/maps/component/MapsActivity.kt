@@ -21,6 +21,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import kotlinx.android.synthetic.main.activity_maps.*
 import kr.kyungjoon.maps.R
+import kr.kyungjoon.maps.models.PlaceInfo
 import permissions.dispatcher.NeedsPermission
 import permissions.dispatcher.OnNeverAskAgain
 import permissions.dispatcher.OnPermissionDenied
@@ -53,24 +54,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.On
 
     override fun onResume() {
         super.onResume()
-        if(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             setupMapWithPermissionCheck()
         } else {
-            val alertDialogBuilder = AlertDialog.Builder(this)
-            alertDialogBuilder
+            AlertDialog.Builder(this)
                     .setMessage("GPS is disabled in your device. Enable it?")
                     .setCancelable(false)
-                    .setPositiveButton("Enable GPS",
-                            { _: DialogInterface, _: Int ->
-                                val callGPSSettingIntent = Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                                this.startActivity(callGPSSettingIntent)
-                            })
-                    .setNegativeButton("Cancel",
-                            { dialogInterface: DialogInterface, _: Int ->
-                                dialogInterface.cancel()
-                            })
-            val alert = alertDialogBuilder.create()
-            alert.show()
+                    .setPositiveButton("Enable GPS", { _: DialogInterface, _: Int -> startActivity(Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS)) })
+                    .setNegativeButton("Cancel", { dialogInterface: DialogInterface, _: Int -> dialogInterface.cancel() })
+                    .create()
+                    .show()
         }
     }
 
@@ -97,6 +90,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.On
             }
 
             fab_style_three.setOnClickListener {
+
             }
 
             fab_style_four.setOnClickListener {
@@ -106,7 +100,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.On
 
     @NeedsPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     fun setupMap() {
-
         googleApiClient = GoogleApiClient.Builder(this).addApi(Places.GEO_DATA_API)
                 .addApi(Places.PLACE_DETECTION_API)
                 .enableAutoManage(this, this)
