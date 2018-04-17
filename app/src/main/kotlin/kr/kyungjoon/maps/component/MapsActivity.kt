@@ -21,7 +21,6 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import kotlinx.android.synthetic.main.activity_maps.*
 import kr.kyungjoon.maps.R
-import kr.kyungjoon.maps.models.PlaceInfo
 import permissions.dispatcher.NeedsPermission
 import permissions.dispatcher.OnNeverAskAgain
 import permissions.dispatcher.OnPermissionDenied
@@ -65,6 +64,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.On
                     .create()
                     .show()
         }
+    }
+
+    public override fun onPause() {
+        super.onPause()
+        googleApiClient.stopAutoManage(this)
+        googleApiClient.disconnect()
     }
 
     @OnPermissionDenied(Manifest.permission.ACCESS_FINE_LOCATION)
