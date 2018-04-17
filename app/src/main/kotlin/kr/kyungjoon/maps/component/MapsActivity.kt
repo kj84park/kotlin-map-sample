@@ -16,9 +16,12 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.places.Places
 import com.google.android.gms.location.places.ui.PlacePicker
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.android.synthetic.main.activity_maps.*
 import kr.kyungjoon.maps.R
 import permissions.dispatcher.NeedsPermission
@@ -40,6 +43,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.On
 
     private lateinit var googleApiClient: GoogleApiClient
     private lateinit var locationManager: LocationManager
+    private lateinit var googleMapLocal: GoogleMap
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,7 +89,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.On
     @SuppressLint("MissingPermission")
     override fun onMapReady(googleMap: GoogleMap) {
 
-        googleMap.apply {
+        googleMapLocal = googleMap
+        googleMapLocal.apply {
             fab_style_one.setOnClickListener {
                 isMyLocationEnabled = !isMyLocationEnabled
             }
@@ -134,7 +139,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.On
             if (resultCode == Activity.RESULT_OK) {
                 data?.let {
                     val place = PlacePicker.getPlace(this, it)
-                    Toast.makeText(this, "Place : " + place.name, Toast.LENGTH_LONG).show()
+                    googleMapLocal.addMarker(MarkerOptions().position(place.latLng).title(place.name.toString()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA)))
+                    googleMapLocal.moveCamera(CameraUpdateFactory.newLatLngZoom(place.latLng, 11F))
+                    //https://stackoverflow.com/questions/43102425/how-to-show-placepicker-location-on-a-google-map
+                    //Toast.makeText(this, "Place : " + place.name, Toast.LENGTH_LONG).show()
                 }
             }
         }
